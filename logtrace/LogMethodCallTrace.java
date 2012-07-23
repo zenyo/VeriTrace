@@ -1,0 +1,37 @@
+package logtrace;
+
+import com.sun.btrace.BTraceUtils;
+import com.sun.btrace.BTraceUtils.*;
+import com.sun.btrace.annotations.*;
+
+@BTrace
+public class LogMethodCallTrace {
+	//@TLS static Appendable c = Strings.newStringBuilder(true);
+	//@TLS static Appendable r = Strings.newStringBuilder(true);
+	
+	@OnMethod (clazz="target.HelloWorld", method="/func.+/", location=@Location(value=Kind.ENTRY))
+	public static void recordFuncEnter (@ProbeClassName String className, @ProbeMethodName String methodName) {
+		Appendable c = Strings.newStringBuilder(true);
+		Strings.append(c, BTraceUtils.str(BTraceUtils.threadId(BTraceUtils.currentThread())));
+		Strings.append(c, " call ");
+		Strings.append(c, className);
+		Strings.append(c, " ");
+		Strings.append(c, methodName);
+		Strings.append(c, " ");
+		Strings.append(c, Strings.str(BTraceUtils.timeMillis()));
+		BTraceUtils.println(Strings.str(c));
+	}
+	
+	@OnMethod (clazz="target.HelloWorld", method="/func.+/", location=@Location(value=Kind.RETURN))
+	public static void recordFuncExit (@ProbeClassName String className, @ProbeMethodName String methodName) {
+		Appendable r = Strings.newStringBuilder(true);
+		Strings.append(r, BTraceUtils.str(BTraceUtils.threadId(BTraceUtils.currentThread())));
+		Strings.append(r, " return ");
+		Strings.append(r, className);
+		Strings.append(r, " ");
+		Strings.append(r, methodName);
+		Strings.append(r, " ");
+		Strings.append(r, Strings.str(BTraceUtils.timeMillis()));
+		BTraceUtils.println(Strings.str(r));
+	}
+}
